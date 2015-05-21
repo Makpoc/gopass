@@ -35,8 +35,7 @@ func addSpecialCharacters(pass, encrypted string) string {
 	for _, v := range VOWELS {
 		vowelCount += strings.Count(strings.ToLower(string(passHashStr)), string(v))
 	}
-	// TODO - make a more complex algorithm
-	fmt.Printf("DEBUG: %d vowels found in %s\n", vowelCount, passHashStr)
+	// TODO - change this.. somehow
 	if vowelCount%2 == 0 {
 		cutToIndex := passLength - len(SPECIAL_CHARS_PREFIX)
 		return fmt.Sprintf("%s%s", encrypted[:cutToIndex], SPECIAL_CHARS_SUFFIX)
