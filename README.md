@@ -1,5 +1,5 @@
 # gopass
-Inspired by [supergenpass-lib](https://github.com/chriszarate/supergenpass-lib) this is an attempt to make a (non-complete yet complete) password generator based on master password and domain.
+Inspired by [supergenpass-lib](https://github.com/chriszarate/supergenpass-lib) this is an attempt to make a (not yet complete) password generator based on master password and domain.
 
 Usage
 =====
