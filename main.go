@@ -12,13 +12,13 @@ import (
 )
 
 const (
-	SPECIAL_CHARS_PREFIX = "!@^#"
-	SPECIAL_CHARS_SUFFIX = ")(*$"
-
 	VOWELS = "aeiouy"
 )
 
 var (
+	// TODO - provide a way for users to define their own suffixes (either via file with suffix per row or a single suffix as param)
+	SPECIAL_CHARS_GROUPS = []string{"`~]'", "!&^#", ")(*$", "[ -=", "@%.;", "<,}+"}
+
 	masterPhrase     string
 	masterPhraseFile string
 	domain           string
@@ -27,22 +27,13 @@ var (
 	addSpecialChars  bool
 )
 
-// addSpecialCharacters adds a predefined set of special characters to the beginning or the end of the password, replacing the corresponding amount of symbols
-func addSpecialCharacters(pass, encrypted string) string {
+// getSpecialCharacters selects from a predefined set of special characters and returns them
+func getSpecialCharacters(encrypted string) string {
 	vowelCount := 0
-	passHash := sha256.Sum256([]byte(pass))
-	passHashStr := base64.StdEncoding.EncodeToString(passHash[:])
 	for _, v := range VOWELS {
-		vowelCount += strings.Count(strings.ToLower(string(passHashStr)), string(v))
+		vowelCount += strings.Count(strings.ToLower(string(encrypted)), string(v))
 	}
-	// TODO - change this.. somehow
-	if vowelCount%2 == 0 {
-		cutToIndex := passLength - len(SPECIAL_CHARS_PREFIX)
-		return fmt.Sprintf("%s%s", encrypted[:cutToIndex], SPECIAL_CHARS_SUFFIX)
-	} else {
-		cutFromIndex := len(SPECIAL_CHARS_PREFIX)
-		return fmt.Sprintf("%s%s", SPECIAL_CHARS_PREFIX, encrypted[cutFromIndex:passLength])
-	}
+	return SPECIAL_CHARS_GROUPS[vowelCount%len(SPECIAL_CHARS_GROUPS)]
 }
 
 // parseMasterPhraseFromFile tries to load the master phrase from the provided file
@@ -56,7 +47,7 @@ func parseMasterPhraseFromFile(file string) error {
 	if err != nil {
 		return err
 	}
-	masterPhrase = string(fileContent)
+	masterPhrase = strings.Replace(string(fileContent), "\n", "", -1)
 	return nil
 }
 
@@ -71,8 +62,14 @@ func parseArgs() {
 
 	flag.Parse()
 
+	validateParams()
+}
+
+// validateParams validates all params that are provided on command line
+func validateParams() {
 	if (masterPhrase == "" && masterPhraseFile == "") || (masterPhrase != "" && masterPhraseFile != "") {
-		log.Fatal("Either master or master-file must be specified")
+		fmt.Println("Either -master or -master-file must be specified")
+		os.Exit(1)
 	}
 
 	if masterPhraseFile != "" {
@@ -82,14 +79,18 @@ func parseArgs() {
 	}
 
 	if domain == "" {
-		log.Fatal("domain is required!")
+		fmt.Println("-domain is required!")
+		os.Exit(1)
 	}
-}
 
-func clean(pass string) string {
-	pass = strings.Replace(pass, "/", "", -1)
-	pass = strings.Replace(pass, "+", "", -1)
-	return pass
+	if passLength < 1 {
+		fmt.Println("-password-length must be a positive number!")
+		os.Exit(1)
+	}
+
+	if passLength < 8 {
+		fmt.Println("WARN: -password-length is too short. We will grant your wish, but this might be a security risk. Consider using longer password.")
+	}
 }
 
 func main() {
@@ -97,13 +98,19 @@ func main() {
 
 	pass := []byte(fmt.Sprintf("%s:%s:%s", masterPhrase, domain, additionalInfo))
 	encrypted := sha256.Sum256(pass)
+	fullPass := base64.StdEncoding.EncodeToString(encrypted[:])
 
-	finalPass := clean(base64.StdEncoding.EncodeToString(encrypted[:]))
-	if addSpecialChars {
-		finalPass = addSpecialCharacters(string(pass), finalPass)
-	} else {
-		finalPass = finalPass[:passLength]
+	if len(fullPass) < passLength {
+		fmt.Printf("Cannot generate password with so many symbols. The current limit is [%d]. Please lower the -password-length value.\n", len(fullPass))
+		os.Exit(1)
 	}
 
-	fmt.Printf("Your password for %s is: %s\n", domain, finalPass)
+	trimmedPass := fullPass[:passLength]
+
+	if addSpecialChars {
+		charsToAdd := getSpecialCharacters(fullPass)
+		trimmedPass = trimmedPass[:len(trimmedPass)-len(charsToAdd)] + charsToAdd
+	}
+
+	fmt.Printf("Your password for %s is: %s\n", domain, trimmedPass)
 }
