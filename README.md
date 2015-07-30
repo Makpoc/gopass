@@ -21,5 +21,6 @@ and the domains.log file contains
 
     Domain: [google.com], Special Characters: [true], AdditionalInfo: []
 
+
     $ ./gopass -master super-mega-secret-master-phrase -domain github.com -password-length 16 -additional-info rev3
     Your password for github.com is: 06r68L1RMlyN)(*$
