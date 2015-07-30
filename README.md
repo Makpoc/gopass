@@ -14,8 +14,12 @@ Usage
 
 Examples
 ========
-    $ ./gopass -master-file masterphrase.file -domain google.com -password-length 16
-    Your password for google.com is: !@^#CZQGMGVHY3a9
+    $ ./gopass -master-file wrong.file -domain google.com -log-domain
+    Your password for google.com is: X68qP6hp@%.;
+
+and the domains.log file contains
+
+    Domain: [google.com], Special Characters: [true], AdditionalInfo: []
 
     $ ./gopass -master super-mega-secret-master-phrase -domain github.com -password-length 16 -additional-info rev3
     Your password for github.com is: 06r68L1RMlyN)(*$
