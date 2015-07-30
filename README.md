@@ -16,6 +16,7 @@ Examples
 ========
 * Generate password with file:
 
+
     $ gopass -master-file passphrase.file -domain google.com -log-domain
     Your password for google.com is: X68qP6hp@%.;
 
@@ -24,6 +25,7 @@ and the domains.log file contains
     Domain: [google.com], Special Characters: [true], AdditionalInfo: []
 
 * Generate password with cmd parameter (warning - this will remain in your shell/cmd history!)
+
 
     $ gopass -master super-mega-secret-master-phrase -domain github.com -password-length 16 -additional-info rev3
     Your password for github.com is: 06r68L1RMlyN)(*$
