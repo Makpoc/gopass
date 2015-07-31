@@ -73,17 +73,20 @@ func parseArgs() {
 	flag.StringVar(&masterPhrase, "master", "", "The master phrase to use for password generation. Required unless master-file is provided. Do NOT forget to escape any special characters contained in the master phrase (e.g. $, space etc).")
 	flag.StringVar(&masterPhraseFile, "master-file", "", "The path to a file, containing the master phrase. Required unless master is provided.")
 	flag.StringVar(&domain, "domain", "", "The domain for which this password is intended")
-	flag.StringVar(&additionalInfo, "additional-info", "", "Free text to add (e.g. index/timestamp if the previous password was compromized)")
-	flag.IntVar(&passLength, "password-length", 12, "Define the length of the password. Default: 12")
+	flag.StringVar(&additionalInfo, "additional-info", "", "Free text to add (e.g. index/timestamp/username if the previous password was compromized)")
+	flag.IntVar(&passLength, "password-length", 12, "Define the length of the password.")
 	flag.BoolVar(&addSpecialChars, "special-characters", true, "Whether to add a known set of special characters to the password")
-	flag.BoolVar(&logDomainsAndInfo, "log-domain", false, "Whether to log the domain and the additional info for each generated password. Note that the password itself will NOT be stored!")
+	flag.BoolVar(&logDomainsAndInfo, "log-domain", false, "Whether to log the parameters that were used for generation to a file. Note that the password itself will NOT be stored!")
 
 	flag.Parse()
 
 	validateParams()
 }
 
-func pringUsageAndExit() {
+func pringUsageAndExit(errorMsg string) {
+	if errorMsg != "" {
+		fmt.Println(errorMsg)
+	}
 	flag.Usage()
 	os.Exit(1)
 }
@@ -91,8 +94,7 @@ func pringUsageAndExit() {
 // validateParams validates all params that are provided on command line
 func validateParams() {
 	if (masterPhrase == "" && masterPhraseFile == "") || (masterPhrase != "" && masterPhraseFile != "") {
-		fmt.Println("Either -master or -master-file must be specified")
-		pringUsageAndExit()
+		pringUsageAndExit("Either -master or -master-file must be specified")
 	}
 
 	if masterPhraseFile != "" {
@@ -104,13 +106,11 @@ func validateParams() {
 	}
 
 	if domain == "" {
-		fmt.Println("-domain is required!")
-		pringUsageAndExit()
+		pringUsageAndExit("-domain is required!")
 	}
 
 	if passLength < 1 {
-		fmt.Println("-password-length must be a positive number!")
-		pringUsageAndExit()
+		pringUsageAndExit("-password-length must be a positive number!")
 	}
 
 	if passLength < 8 {
