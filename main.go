@@ -28,11 +28,11 @@ var (
 	logDomainsAndInfo bool
 )
 
-// getSpecialCharacters selects from a predefined set of special characters and returns them
+// getSpecialCharacters selects from a predefined set of special characters and returns them. For now the "algorithm" is based on the number of vowels in the encrypted string.
 func getSpecialCharacters(encrypted string) string {
 	vowelCount := 0
 	for _, v := range VOWELS {
-		vowelCount += strings.Count(strings.ToLower(string(encrypted)), string(v))
+		vowelCount += strings.Count(strings.ToLower(encrypted), v)
 	}
 	return SPECIAL_CHARS_GROUPS[vowelCount%len(SPECIAL_CHARS_GROUPS)]
 }
@@ -118,6 +118,32 @@ func validateParams() {
 	}
 }
 
+//constructPasswordToEncrypt combines the different strings, put in the password base (domain, masterPhrase, ...)
+func constructPasswordToEncrypt() string {
+	return fmt.Sprintf("%s:%s:%s", masterPhrase, domain, additionalInfo)
+}
+
+// GeneratePassword does the actual work - encrypt the base string, trims the password to size and appends the special characters.
+func GeneratePassword() {
+	encrypted := sha256.Sum256([]byte(pass))
+	fullEncryptHash := base64.StdEncoding.EncodeToString(encrypted[:])
+
+	if len(fullEncryptHash) < passLength {
+		fmt.Printf("Cannot generate password with so many symbols. The current limit is [%d]. Please lower the -password-length value.\n", len(fullEncryptHash))
+		os.Exit(1)
+	}
+
+	trimmedPass := fullEncryptHash[:passLength]
+
+	if addSpecialChars {
+		charsToAdd := getSpecialCharacters(fullEncryptHash)
+		trimmedPass = trimmedPass[:len(trimmedPass)-len(charsToAdd)] + charsToAdd
+	}
+
+	fmt.Printf("Your password for %s is: %s\n", domain, trimmedPass)
+
+}
+
 func main() {
 	parseArgs()
 
@@ -125,21 +151,5 @@ func main() {
 		logInfo()
 	}
 
-	pass := []byte(fmt.Sprintf("%s:%s:%s", masterPhrase, domain, additionalInfo))
-	encrypted := sha256.Sum256(pass)
-	fullPass := base64.StdEncoding.EncodeToString(encrypted[:])
-
-	if len(fullPass) < passLength {
-		fmt.Printf("Cannot generate password with so many symbols. The current limit is [%d]. Please lower the -password-length value.\n", len(fullPass))
-		os.Exit(1)
-	}
-
-	trimmedPass := fullPass[:passLength]
-
-	if addSpecialChars {
-		charsToAdd := getSpecialCharacters(fullPass)
-		trimmedPass = trimmedPass[:len(trimmedPass)-len(charsToAdd)] + charsToAdd
-	}
-
-	fmt.Printf("Your password for %s is: %s\n", domain, trimmedPass)
+	GeneratePassword()
 }
