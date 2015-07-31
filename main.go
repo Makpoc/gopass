@@ -32,7 +32,7 @@ var (
 func getSpecialCharacters(encrypted string) string {
 	vowelCount := 0
 	for _, v := range VOWELS {
-		vowelCount += strings.Count(strings.ToLower(encrypted), v)
+		vowelCount += strings.Count(strings.ToLower(encrypted), string(v))
 	}
 	return SPECIAL_CHARS_GROUPS[vowelCount%len(SPECIAL_CHARS_GROUPS)]
 }
@@ -125,7 +125,7 @@ func constructPasswordToEncrypt() string {
 
 // GeneratePassword does the actual work - encrypt the base string, trims the password to size and appends the special characters.
 func GeneratePassword() {
-	encrypted := sha256.Sum256([]byte(pass))
+	encrypted := sha256.Sum256([]byte(constructPasswordToEncrypt()))
 	fullEncryptHash := base64.StdEncoding.EncodeToString(encrypted[:])
 
 	if len(fullEncryptHash) < passLength {
