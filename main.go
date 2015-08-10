@@ -7,6 +7,8 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"os/user"
+	"path"
 	"strings"
 )
 
@@ -68,10 +70,40 @@ func parseMasterPhraseFromFile(file string) (string, error) {
 	return strings.Trim(string(fileContent), "\r\n"), nil
 }
 
+func parseMasterPhrase() error {
+	if masterPhrase != "" {
+		// master phrase provided on cmd
+		return nil
+	}
+
+	if masterPhraseFile != "" {
+		// master phrase provided as file
+		var err error
+		if masterPhrase, err = parseMasterPhraseFromFile(masterPhraseFile); err != nil {
+			fmt.Printf("Failed to retrieve the master phrase from file! Error was: %s\n", err)
+			os.Exit(1)
+		}
+	}
+
+	// try to load the file from ~/.gopass/secret
+	usr, err := user.Current()
+	if err != nil {
+		return fmt.Errorf("Failed to retrieve current user! Error was %s\n", err)
+	}
+
+	masterPhrase, err = parseMasterPhraseFromFile(path.Join(path.Join(usr.HomeDir, ".gopass"), "master"))
+	if err != nil {
+		return fmt.Errorf("Failed to retrieve master from default file. Error was: %s\n", err)
+	}
+
+	return nil
+}
+
 // parseArgs parses the command line arguments and checks if they are valid
 func parseArgs() {
-	flag.StringVar(&masterPhrase, "master", "", "The master phrase to use for password generation. Required unless master-file is provided. Do NOT forget to escape any special characters contained in the master phrase (e.g. $, space etc).")
-	flag.StringVar(&masterPhraseFile, "master-file", "", "The path to a file, containing the master phrase. Required unless master is provided.")
+	flag.StringVar(&masterPhrase, "master", "", "The master phrase to use for password generation. Do NOT forget to escape any special characters contained in the master phrase (e.g. $, space etc).")
+	flag.StringVar(&masterPhraseFile, "master-file", "", "The path to a file, containing the master phrase.")
+
 	flag.StringVar(&domain, "domain", "", "The domain for which this password is intended")
 	flag.StringVar(&additionalInfo, "additional-info", "", "Free text to add (e.g. index/timestamp/username if the previous password was compromized)")
 	flag.IntVar(&passLength, "password-length", 12, "Define the length of the password.")
@@ -80,10 +112,15 @@ func parseArgs() {
 
 	flag.Parse()
 
+	err := parseMasterPhrase()
+	if err != nil {
+		printUsageAndExit(err.Error())
+	}
+
 	validateParams()
 }
 
-func pringUsageAndExit(errorMsg string) {
+func printUsageAndExit(errorMsg string) {
 	if errorMsg != "" {
 		fmt.Println(errorMsg)
 	}
@@ -93,24 +130,12 @@ func pringUsageAndExit(errorMsg string) {
 
 // validateParams validates all params that are provided on command line
 func validateParams() {
-	if (masterPhrase == "" && masterPhraseFile == "") || (masterPhrase != "" && masterPhraseFile != "") {
-		pringUsageAndExit("Either -master or -master-file must be specified")
-	}
-
-	if masterPhraseFile != "" {
-		var err error
-		if masterPhrase, err = parseMasterPhraseFromFile(masterPhraseFile); err != nil {
-			fmt.Printf("Failed to retreive the master phrase from file! Error was: %s\n", err)
-			os.Exit(1)
-		}
-	}
-
 	if domain == "" {
-		pringUsageAndExit("-domain is required!")
+		printUsageAndExit("-domain is required!")
 	}
 
 	if passLength < 1 {
-		pringUsageAndExit("-password-length must be a positive number!")
+		printUsageAndExit("-password-length must be a positive number!")
 	}
 
 	if passLength < 8 {
