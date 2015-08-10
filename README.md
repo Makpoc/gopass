@@ -11,11 +11,13 @@ Usage
       -additional-info="": Free text to add (e.g. index/timestamp/username if the previous password was compromized)
       -domain="": The domain for which this password is intended
       -log-domain=false: Whether to log the parameters that were used for password generation to a file. Note that the password itself will NOT be stored!
-      -master="": The master phrase to use for password generation. Required unless master-file is provided. Do NOT forget to escape any special characters contained in the master phrase (e.g. $, space etc).
-      -master-file="": The path to a file, containing the master phrase. Required unless master is provided.
+      -master="": The master phrase to use for password generation. Do NOT forget to escape any special characters contained in the master phrase (e.g. $, space etc).
+      -master-file="": The path to a file, containing the master phrase.
       -password-length=12: Define the length of the password.
       -special-characters=true: Whether to add a known set of special characters to the password
 
+
+If neither master nor master-file is provided we try to find _~/.gopass/master_ file and load the master password from there.
 
 Examples
 ========
