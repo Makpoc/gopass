@@ -10,17 +10,22 @@ import (
 	"os/user"
 	"path"
 	"strings"
+	"time"
 )
 
 const (
-	VOWELS        = "aeiouy"
-	LOG_FILE_NAME = "domains.log"
+	VOWELS      = "aeiouy"
+	GOPASS_HOME = "GOPASS_HOME"
 )
 
 var (
 	// TODO - provide a way for users to define their own suffixes (either via file with suffix per row or a single suffix as param)
 	SPECIAL_CHARS_GROUPS = []string{"`~]'", "!&^#", ")(*$", "[ -=", "@%.;", "<,}+"}
 
+	defaultMasterFileName = "master"
+	logFileName           = "domains.log"
+
+	configFolder      string
 	masterPhrase      string
 	masterPhraseFile  string
 	domain            string
@@ -29,6 +34,22 @@ var (
 	addSpecialChars   bool
 	logDomainsAndInfo bool
 )
+
+// initHome initializes the configFolder to point to the default or user-definied home
+func initHome() error {
+	if cf := os.Getenv(GOPASS_HOME); cf != "" {
+		configFolder = cf
+		return nil
+	}
+
+	usr, err := user.Current()
+	if err != nil {
+		return fmt.Errorf("Failed to retrieve current user! Error was %s", err)
+	}
+
+	configFolder = path.Join(usr.HomeDir, ".gopass")
+	return nil
+}
 
 // getSpecialCharacters selects from a predefined set of special characters and returns them. For now the "algorithm" is based on the number of vowels in the encrypted string.
 func getSpecialCharacters(encrypted string) string {
@@ -41,17 +62,17 @@ func getSpecialCharacters(encrypted string) string {
 
 // logInfo is used to log a "reminder log" containing the domains this tool was used for and any additional information that was provided. It is disabled by default.
 func logInfo() {
-	file, err := os.OpenFile(LOG_FILE_NAME, os.O_WRONLY|os.O_APPEND|os.O_CREATE, 0600)
+	file, err := os.OpenFile(path.Join(configFolder, logFileName), os.O_WRONLY|os.O_APPEND|os.O_CREATE, 0600)
 	if err != nil {
-		fmt.Sprintf("Failed to open log file %s. Error was: %s\n", LOG_FILE_NAME, err)
+		fmt.Sprintf("Failed to open log file %s. Error was: %s\n", logFileName, err)
 	}
 	defer file.Close()
 
-	data := fmt.Sprintf("Domain: [%s], Special Characters: [%v], AdditionalInfo: [%s]\n", domain, addSpecialChars, additionalInfo)
+	data := fmt.Sprintf("Date: [%s], Domain: [%s], Special Characters: [%v], AdditionalInfo: [%s]\n", time.Now().Format(time.RFC3339), domain, addSpecialChars, additionalInfo)
 	_, err = file.WriteString(data)
 
 	if err != nil {
-		fmt.Sprintf("Failed to write to log file %s. Error was: %s\n", LOG_FILE_NAME, err)
+		fmt.Sprintf("Failed to write to log file %s. Error was: %s\n", logFileName, err)
 	}
 }
 
@@ -76,24 +97,19 @@ func parseMasterPhrase() error {
 		return nil
 	}
 
+	var err error
+
 	if masterPhraseFile != "" {
 		// master phrase provided as file
-		var err error
 		if masterPhrase, err = parseMasterPhraseFromFile(masterPhraseFile); err != nil {
-			fmt.Printf("Failed to retrieve the master phrase from file! Error was: %s\n", err)
-			os.Exit(1)
+			return fmt.Errorf("Failed to retrieve the master from file! Error was: %s", err)
 		}
 	}
 
-	// try to load the file from ~/.gopass/secret
-	usr, err := user.Current()
+	// try to load from the default file
+	masterPhrase, err = parseMasterPhraseFromFile(path.Join(configFolder, "master"))
 	if err != nil {
-		return fmt.Errorf("Failed to retrieve current user! Error was %s\n", err)
-	}
-
-	masterPhrase, err = parseMasterPhraseFromFile(path.Join(path.Join(usr.HomeDir, ".gopass"), "master"))
-	if err != nil {
-		return fmt.Errorf("Failed to retrieve master from default file. Error was: %s\n", err)
+		return fmt.Errorf("Failed to retrieve master from default file. Error was: %s", err)
 	}
 
 	return nil
@@ -114,32 +130,34 @@ func parseArgs() {
 
 	err := parseMasterPhrase()
 	if err != nil {
-		printUsageAndExit(err.Error())
+		printAndExit(err.Error(), true)
 	}
 
 	validateParams()
 }
 
-func printUsageAndExit(errorMsg string) {
+func printAndExit(errorMsg string, printUsage bool) {
 	if errorMsg != "" {
 		fmt.Println(errorMsg)
 	}
-	flag.Usage()
+	if printUsage {
+		flag.Usage()
+	}
 	os.Exit(1)
 }
 
 // validateParams validates all params that are provided on command line
 func validateParams() {
 	if domain == "" {
-		printUsageAndExit("-domain is required!")
+		printAndExit("-domain is required!", true)
 	}
 
 	if passLength < 1 {
-		printUsageAndExit("-password-length must be a positive number!")
+		printAndExit("-password-length must be a positive number!", true)
 	}
 
 	if passLength < 8 {
-		fmt.Println("WARN: -password-length is too short. We will grant your wish, but this might be a security risk. Consider using longer password.")
+		fmt.Println("WARN: -password-length is too short. We will grant your wish, but this might be a security risk. Consider using longer password.", false)
 	}
 }
 
@@ -149,13 +167,12 @@ func constructPasswordToEncrypt() string {
 }
 
 // GeneratePassword does the actual work - encrypt the base string, trims the password to size and appends the special characters.
-func GeneratePassword() {
+func GeneratePassword() error {
 	encrypted := sha256.Sum256([]byte(constructPasswordToEncrypt()))
 	fullEncryptHash := base64.StdEncoding.EncodeToString(encrypted[:])
 
 	if len(fullEncryptHash) < passLength {
-		fmt.Printf("Cannot generate password with so many symbols. The current limit is [%d]. Please lower the -password-length value.\n", len(fullEncryptHash))
-		os.Exit(1)
+		return fmt.Errorf("Cannot generate password with so many symbols. The current limit is [%d]. Please lower the -password-length value.", len(fullEncryptHash))
 	}
 
 	trimmedPass := fullEncryptHash[:passLength]
@@ -166,15 +183,23 @@ func GeneratePassword() {
 	}
 
 	fmt.Printf("Your password for %s is: %s\n", domain, trimmedPass)
+	return nil
 
 }
 
 func main() {
+	if err := initHome(); err != nil {
+		printAndExit(fmt.Sprintf("Failed to initialize default settings. Error was %s", err.Error), false)
+	}
+
 	parseArgs()
+
+	if err := GeneratePassword(); err != nil {
+		printAndExit(err.Error(), false)
+	}
 
 	if logDomainsAndInfo {
 		logInfo()
 	}
 
-	GeneratePassword()
 }
