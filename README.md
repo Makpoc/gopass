@@ -10,7 +10,7 @@ Usage
     Usage of gopass:
       -additional-info="": Free text to add (e.g. index/timestamp/username if the previous password was compromized)
       -domain="": The domain for which this password is intended
-      -log-domain=false: Whether to log the parameters that were used for password generation to a file. Note that the password itself will NOT be stored!
+      -log-info=false: Whether to log the parameters that were used for password generation to a file. Note that the password itself will NOT be stored!
       -master="": The master phrase to use for password generation. Do NOT forget to escape any special characters contained in the master phrase (e.g. $, space etc).
       -master-file="": The path to a file, containing the master phrase.
       -password-length=12: Define the length of the password.
