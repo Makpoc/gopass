@@ -14,8 +14,7 @@ import (
 )
 
 const (
-	VOWELS      = "aeiouy"
-	GOPASS_HOME = "GOPASS_HOME"
+	goPass = "GOPASS_HOME"
 )
 
 var (
@@ -34,7 +33,7 @@ var (
 
 // initHome initializes the configFolder to point to the default or user-definied home
 func initHome() error {
-	if cf := os.Getenv(GOPASS_HOME); cf != "" {
+	if cf := os.Getenv(goPass); cf != "" {
 		configFolder = cf
 		return nil
 	}
