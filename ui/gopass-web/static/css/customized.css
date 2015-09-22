@@ -1,0 +1,35 @@
+body {
+  padding-top: 50px;
+}
+.starter-template {
+  padding: 40px 15px;
+  text-align: center;
+}
+
+.label {
+    white-space: normal;
+}
+
+.form-small .control-label {
+    width: 100px;
+}
+
+.form-small .form-control {
+    margin-left: 120px;
+}
+
+.form-medium .control-label {
+    width: 160px;
+}
+
+.form-medium .form-control {
+    margin-left: 180px;
+}
+
+.form-xlarge .control-label {
+    width: 220px;
+}
+
+.form-xlarge .form-control {
+    margin-left: 240px;
+}

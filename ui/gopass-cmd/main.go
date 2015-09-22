@@ -161,8 +161,8 @@ func main() {
 	}
 
 	parseArgs()
-
-	pass, err := generator.GeneratePassword(masterPhrase, domain, additionalInfo, passLength, addSpecialChars)
+	settings := generator.Settings{MasterPhrase: masterPhrase, Domain: domain, AdditionalInfo: additionalInfo, PasswordLength: passLength, AddSpecialCharacters: addSpecialChars}
+	pass, err := generator.GeneratePassword(settings)
 	if err != nil {
 		printAndExit(err.Error(), false)
 	}

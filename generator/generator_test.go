@@ -26,25 +26,27 @@ var charsTest = []struct {
 	{"aeiouya", "!&^#"},
 }
 
-type generatorInput struct {
-	pass            string
-	domain          string
-	additionalInfo  string
-	passLength      int
-	addSpecialChars bool
-}
-
 var genPassTests = []struct {
-	generatorInput
+	Settings
 	expected string
 }{
-	{generatorInput{pass: "secret", domain: "localhost", additionalInfo: "", passLength: 12, addSpecialChars: true}, "B8MYkTQT`~]'"},
-	{generatorInput{pass: "secret", domain: "localhost", additionalInfo: "", passLength: 12, addSpecialChars: false}, "B8MYkTQTtUwW"},
-	{generatorInput{pass: "secret", domain: "google.com", additionalInfo: "", passLength: 12, addSpecialChars: true}, "ODejwny3!&^#"},
-	{generatorInput{pass: "terces", domain: "google.com", additionalInfo: "", passLength: 12, addSpecialChars: true}, "cLJk0Cnq!&^#"},
-	{generatorInput{pass: "terces", domain: "google.com", additionalInfo: "", passLength: 20, addSpecialChars: true}, "cLJk0CnqwfDqjv4Y!&^#"},
-	{generatorInput{pass: "terces", domain: "google.com", additionalInfo: "addInfo", passLength: 12, addSpecialChars: true}, "SKkSa4NN)(*$"},
-	{generatorInput{pass: "terces", domain: "google.com", additionalInfo: "addInfo", passLength: 12, addSpecialChars: false}, "SKkSa4NN+5Xo"},
+	{Settings{MasterPhrase: "secret", Domain: "localhost", AdditionalInfo: "", PasswordLength: 12, AddSpecialCharacters: true}, "B8MYkTQT`~]'"},
+	{Settings{MasterPhrase: "secret", Domain: "localhost", AdditionalInfo: "", PasswordLength: 12, AddSpecialCharacters: false}, "B8MYkTQTtUwW"},
+	{Settings{MasterPhrase: "secret", Domain: "google.com", AdditionalInfo: "", PasswordLength: 12, AddSpecialCharacters: true}, "ODejwny3!&^#"},
+	{Settings{MasterPhrase: "terces", Domain: "google.com", AdditionalInfo: "", PasswordLength: 12, AddSpecialCharacters: true}, "cLJk0Cnq!&^#"},
+	{Settings{MasterPhrase: "terces", Domain: "google.com", AdditionalInfo: "", PasswordLength: 20, AddSpecialCharacters: true}, "cLJk0CnqwfDqjv4Y!&^#"},
+	{Settings{MasterPhrase: "terces", Domain: "google.com", AdditionalInfo: "addInfo", PasswordLength: 12, AddSpecialCharacters: true}, "SKkSa4NN)(*$"},
+	{Settings{MasterPhrase: "terces", Domain: "google.com", AdditionalInfo: "addInfo", PasswordLength: 12, AddSpecialCharacters: false}, "SKkSa4NN+5Xo"},
+}
+
+var invalidSettings = []struct {
+	Settings
+	expectedErr error
+}{
+	{Settings{}, ErrorEmptyPass},
+	{Settings{MasterPhrase: "secret"}, ErrorEmptyDomain},
+	{Settings{Domain: "google.com"}, ErrorEmptyPass},
+	{Settings{MasterPhrase: "secret", Domain: "google.com"}, nil},
 }
 
 func TestSpecialCharactersGenerationLowerCase(t *testing.T) {
@@ -79,15 +81,25 @@ func TestSpecialCharactersGenerationMixedCase(t *testing.T) {
 // masterPhrase, domain, additionalInfo string, passLength int, addSpecialChars bool
 func TestGeneratePassword(t *testing.T) {
 	for _, inOut := range genPassTests {
-		actual, err := GeneratePassword(inOut.pass, inOut.domain, inOut.additionalInfo, inOut.passLength, inOut.addSpecialChars)
+		actual, err := GeneratePassword(inOut.Settings)
 		if err != nil {
 			t.Errorf("GeneratePassword returned an error %s", err)
 		}
 		actualStr := string(actual)
 		if actualStr != inOut.expected {
-			t.Errorf("GeneratePassword(%s, %s, %s, %d, %v): expected %s, actual %s", inOut.pass, inOut.domain, inOut.additionalInfo, inOut.passLength, inOut.addSpecialChars, inOut.expected, actualStr)
+			t.Errorf("GeneratePassword(%v): expected %s, actual %s", inOut.Settings, inOut.expected, actualStr)
 		}
 	}
+}
+
+func TestNegInvalidSettings(t *testing.T) {
+	for _, inOut := range invalidSettings {
+		_, actualErr := GeneratePassword(inOut.Settings)
+		if actualErr != inOut.expectedErr {
+			t.Errorf("GeneratePassword(%s): expected error %s, actual %s", inOut.Settings, inOut.expectedErr, actualErr)
+		}
+	}
+
 }
 
 func toMixedCase(input string) string {
