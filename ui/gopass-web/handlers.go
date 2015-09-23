@@ -2,7 +2,6 @@ package main
 
 import (
 	"errors"
-	"fmt"
 	"net/http"
 	"strconv"
 
@@ -25,14 +24,12 @@ func generateHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	fmt.Println("success")
 	resultPage.Execute(w, string(pass))
 }
 
 func handleError(w http.ResponseWriter, status int, err error, msg string) {
 	w.WriteHeader(status)
 	errorPage.Execute(w, msg)
-	fmt.Println(err)
 }
 
 func aboutHandler(w http.ResponseWriter, r *http.Request) {
