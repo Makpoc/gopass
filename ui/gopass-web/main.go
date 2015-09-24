@@ -3,7 +3,20 @@ package main
 import (
 	"log"
 	"net/http"
+	"os"
 )
+
+const defaultPort = "8000"
+const portEnvKey = "PORT"
+
+func getPort() string {
+	port := os.Getenv(portEnvKey)
+	if port == "" {
+		port = defaultPort
+	}
+
+	return port
+}
 
 func main() {
 	prepareTemplates()
@@ -14,7 +27,7 @@ func main() {
 	http.HandleFunc("/about", logger(aboutHandler))
 	http.HandleFunc("/generate_pass", logger(generateHandler))
 	//	http.HandleFunc("/", logger(generate, "Generate"))
-	err := http.ListenAndServe(":8000", nil)
+	err := http.ListenAndServe(":"+getPort(), nil)
 	if err != nil {
 		log.Fatal(err)
 	}

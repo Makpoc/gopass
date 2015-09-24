@@ -10,7 +10,7 @@ import (
 
 // Settings holds all properties for the password, which will be generated.
 type Settings struct {
-	MasterPhrase         string /// TODO - add tags
+	MasterPhrase         string
 	Domain               string
 	AdditionalInfo       string
 	PasswordLength       int
