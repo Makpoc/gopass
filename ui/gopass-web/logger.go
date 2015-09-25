@@ -6,6 +6,7 @@ import (
 	"time"
 )
 
+// loggingResponseWriter embeds the default repsponseWriter and provides a status field to get the status of a request after the response is received
 type loggingResponseWriter struct {
 	http.ResponseWriter
 	status int
@@ -23,6 +24,7 @@ func (l *loggingResponseWriter) Write(b []byte) (int, error) {
 	return l.ResponseWriter.Write(b)
 }
 
+// logger wrapps a HandlerFunc and logs a request/response information
 func logger(inner http.HandlerFunc) http.HandlerFunc {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		start := time.Now()

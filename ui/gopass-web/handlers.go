@@ -8,11 +8,11 @@ import (
 	"github.com/makpoc/gopass/generator"
 )
 
-func homeHandler(w http.ResponseWriter, r *http.Request) {
+func homePageHandler(w http.ResponseWriter, r *http.Request) {
 	formPage.Execute(w, nil)
 }
 
-func generateHandler(w http.ResponseWriter, r *http.Request) {
+func generatePageHandler(w http.ResponseWriter, r *http.Request) {
 	settings, err := parseForm(r)
 	if err != nil {
 		handleError(w, http.StatusInternalServerError, err, "Failed to parse form parameters")
@@ -32,7 +32,7 @@ func handleError(w http.ResponseWriter, status int, err error, msg string) {
 	errorPage.Execute(w, msg)
 }
 
-func aboutHandler(w http.ResponseWriter, r *http.Request) {
+func aboutPageHandler(w http.ResponseWriter, r *http.Request) {
 	aboutPage.Execute(w, nil)
 }
 
@@ -53,7 +53,7 @@ func parseForm(r *http.Request) (settings generator.Settings, err error) {
 	if pLength != "" {
 		var passwordLength int
 		if passwordLength, err = strconv.Atoi(pLength); err != nil {
-			return settings, err
+			return
 		}
 		settings.PasswordLength = passwordLength
 	}
@@ -62,11 +62,10 @@ func parseForm(r *http.Request) (settings generator.Settings, err error) {
 	if sChars != "" {
 		var specialCharacters bool
 		if specialCharacters, err = strconv.ParseBool(sChars); err != nil {
-			return settings, err
+			return
 		}
 		settings.AddSpecialCharacters = specialCharacters
 	}
 
-	return settings, nil
-
+	return
 }

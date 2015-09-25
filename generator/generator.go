@@ -24,6 +24,7 @@ var (
 
 const vowels = "aeiouy"
 
+// DefaultSettings creates a settings struct with default values for password length (12) and special characters (included)
 func DefaultSettings() Settings {
 	return Settings{PasswordLength: 12, AddSpecialCharacters: true}
 }
@@ -40,6 +41,7 @@ func getSpecialCharacters(encrypted string) string {
 	return specialCharsGroups[vowelCount%len(specialCharsGroups)]
 }
 
+// validateSettings checks if the settings object contains all mandatory fields
 func validateSettings(settings Settings) error {
 	if settings.MasterPhrase == "" {
 		return ErrorEmptyPass
