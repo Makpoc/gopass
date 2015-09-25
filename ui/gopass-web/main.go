@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -27,8 +28,10 @@ func main() {
 	http.HandleFunc("/", logger(homePageHandler))
 	http.HandleFunc("/about", logger(aboutPageHandler))
 	http.HandleFunc("/generate_pass", logger(generatePageHandler))
-	//	http.HandleFunc("/", logger(generate, "Generate"))
-	err := http.ListenAndServe(":"+getPort(), nil)
+
+	port := ":" + getPort()
+	fmt.Println("Listening on " + port + "...")
+	err := http.ListenAndServe(port, nil)
 	if err != nil {
 		log.Fatal(err)
 	}

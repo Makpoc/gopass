@@ -132,9 +132,10 @@ func parseArgs() {
 // printAndExit is a convenience method for printing messages to command line and exiting with error code
 func printAndExit(errorMsg string, printUsage bool) {
 	if errorMsg != "" {
-		fmt.Println(errorMsg)
+		fmt.Println("Error: " + errorMsg)
 	}
 	if printUsage {
+		fmt.Println()
 		flag.Usage()
 	}
 	os.Exit(1)
