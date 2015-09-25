@@ -49,3 +49,4 @@ I have not seen any functional problems so far, but please send feedback/issues 
 However I took a shortcut by defining a predefined set of special character groups to make sure that the password contains such symbols. I intent to improve this at some point but for now I don't have a clear idea how to make it "random enough".
 
 TODO: configure the server to run over SSL - who would want to send their password over plain HTTP. :)
+    go run $GOROOT/src/crypto/tls/generate_cert.go --host="localhost"
