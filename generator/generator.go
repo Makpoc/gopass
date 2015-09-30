@@ -18,7 +18,9 @@ type Settings struct {
 }
 
 var (
-	ErrorEmptyPass   = errors.New("Empty master password")
+	// ErrorEmptyPass is returned when the master password is empty. It is a required setting.
+	ErrorEmptyPass = errors.New("Empty master password")
+	// ErrorEmptyDomain is returned when the domain is empty. It is a required setting.
 	ErrorEmptyDomain = errors.New("Empty domain")
 )
 
