@@ -92,6 +92,28 @@ func TestGeneratePassword(t *testing.T) {
 	}
 }
 
+func TestDefaultSettings(t *testing.T) {
+
+	defaultPasswordLength := 12
+
+	defaultSettings := DefaultSettings()
+	if defaultSettings.Domain != "" || defaultSettings.MasterPhrase != "" || defaultSettings.AdditionalInfo != "" {
+		t.Errorf("Default settings contain data, that must be empty! Domain: [%s], MasterPhrase: [%s], AdditionalInfo: [%s]\n", defaultSettings.Domain, defaultSettings.MasterPhrase, defaultSettings.AdditionalInfo)
+	}
+
+	if !defaultSettings.AddSpecialCharacters || defaultSettings.PasswordLength != defaultPasswordLength {
+		t.Errorf("Default settings contain unexpected data! AddSpecialCharacters: expected [%s], actual [%s]; PasswordLength: expected [%d], actual [%d]\n", true, defaultSettings.AddSpecialCharacters, defaultPasswordLength, defaultSettings.PasswordLength)
+	}
+}
+
+func TestNegTooLongPassRequirement(t *testing.T) {
+	settings := Settings{MasterPhrase: "qwerty", Domain: "qwerty", PasswordLength: 1000}
+	_, err := GeneratePassword(settings)
+	if err == nil {
+		t.Errorf("Expected error after requesting a too long password. Got nothing instead (error was nil)")
+	}
+}
+
 func TestNegInvalidSettings(t *testing.T) {
 	for _, inOut := range invalidSettings {
 		_, actualErr := GeneratePassword(inOut.Settings)
