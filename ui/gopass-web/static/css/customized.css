@@ -1,9 +1,19 @@
 body {
   padding-top: 50px;
 }
-.starter-template {
+.content {
   padding: 40px 15px;
   text-align: center;
+}
+
+.hint {
+    font-size: 75%;
+}
+
+.password {
+    padding-top: -15px;
+    color: #777 !important;
+    background-color: #777 !important;
 }
 
 .label {
