@@ -7,7 +7,15 @@ This tool generates per domain passwords based on a master secret and some custo
 
 Installation
 ============
-Execute ```go get github.com/makpoc/gopass/ui/gopass-cmd``` for the command line interface or ```go get github.com/makpoc/gopass/ui/gopass-web``` for the WebUI.
+Execute 
+```
+go get github.com/makpoc/gopass/ui/gopass-cmd
+``` 
+to get the commandline interface or 
+```
+go get github.com/makpoc/gopass/ui/gopass-web
+```
+for the WebUI.
 
 Usage
 =====
@@ -46,11 +54,23 @@ $ gopass -master super-mega-secret-master-phrase -domain github.com -password-le
 Your password for github.com is: 41sLFIlPOFHI[ -=
 ```
 
+Configuration files
+===================
+If neither ```master``` nor ```master-file``` is provided on the command line the program will make one last attempt to get a master password from ```$GOPASS_HOME/.gopass/master```. If you use this file however make sure it's secured, because it needs to contain your master password in plaintext. On unix - make sure you set very restrictive permissions to it (like ```0600```). Encrypting your HDD is also something to consider (not just because of this program, but in general).
+
+The default location for the domains log file is also under $GOPASS_HOME/.gopass and is currently not configurable.
+
+```$GOPASS_HOME```'s default value is ```$HOME```.
+
 Problems
 ========
 I have not seen any functional problems so far, but please send feedback/issues if you find any :)
-
 However I took a shortcut by defining a predefined set of special character groups to make sure that the password contains such symbols. I intent to improve this at some point but for now I don't have a clear idea how to make it "random enough".
 
-TODO: configure the server to run over SSL - who would want to send their password over plain HTTP. :)
-    go run $GOROOT/src/crypto/tls/generate_cert.go --host="localhost"
+
+TODOs
+=====
+* Configure the server to run over SSL - who would want to send their password over plain HTTP. :)
+```
+go run $GOROOT/src/crypto/tls/generate_cert.go --host="localhost"
+```
