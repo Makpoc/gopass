@@ -1,5 +1,4 @@
-[![Build Status](https://travis-ci.org/Makpoc/gopass.svg?branch=master)](https://travis-ci.org/Makpoc/gopass)
-
+[![Build Status](https://travis-ci.org/Makpoc/gopass.svg?branch=master)](https://travis-ci.org/Makpoc/gopass) [![code-coverage](http://gocover.io/_badge/github.com/Makpoc/gopass/generator)](http://gocover.io/github.com/Makpoc/gopass/generator) [![go-doc](https://godoc.org/github.com/Makpoc/gopass/generator?status.svg)](https://godoc.org/github.com/Makpoc/gopass/generator)
 # gopass
 
 Inspired by [supergenpass-lib](https://github.com/chriszarate/supergenpass-lib) and [vpass](https://github.com/vladstudio/vpass2) this is an attempt to make a password generator based on master password and domain.
