@@ -14,7 +14,7 @@ import (
 )
 
 const (
-	goPass = "GOPASS_HOME"
+	goHomeEnvVar = "GOPASS_HOME"
 )
 
 var (
@@ -31,9 +31,9 @@ var (
 	addInfoToLog     bool
 )
 
-// initHome initializes the configFolder to point to the default or user-definied home
-func initHome() error {
-	if cf := os.Getenv(goPass); cf != "" {
+// initConfigFolder initializes the configFolder to point to the default or user-definied home
+func initConfigFolder() error {
+	if cf := os.Getenv(goHomeEnvVar); cf != "" {
 		configFolder = cf
 		return nil
 	}
@@ -157,7 +157,7 @@ func validateParams() {
 }
 
 func main() {
-	if err := initHome(); err != nil {
+	if err := initConfigFolder(); err != nil {
 		printAndExit(fmt.Sprintf("Failed to initialize default settings. Error was %s", err.Error), false)
 	}
 

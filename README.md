@@ -58,11 +58,13 @@ Your password for github.com is: 41sLFIlPOFHI[ -=
 
 # Configuration files
 
-If neither ```master``` nor ```master-file``` is provided on the command line the program will make one last attempt to get a master password from ```$GOPASS_HOME/.gopass/master```. If you use this file however make sure it's secured, because it needs to contain your master password in plaintext. On unix - make sure you set very restrictive permissions to it (like ```0600```). Encrypting your HDD is also something to consider (not just because of this program, but in general).
+:information_source: For the command line tool only:
+
+If neither ```master``` nor ```master-file``` is provided on the command line the program will make one last attempt to get a master password from ```$GOPASS_HOME/master```. If you use this file however make sure it's secured, because it needs to contain your master password in plaintext. On unix - make sure you set very restrictive permissions to it (like ```0600```). Encrypting your HDD is also something to consider (not just because of this program, but in general).
 
 The default location for the domains log file is also under $GOPASS_HOME/.gopass and is currently not configurable.
 
-```$GOPASS_HOME```'s default value is ```$HOME```.
+```$GOPASS_HOME```'s default value is ```$HOME/.gopass```.
 
 # Problems
 
