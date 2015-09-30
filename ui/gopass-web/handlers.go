@@ -8,6 +8,11 @@ import (
 	"github.com/makpoc/gopass/generator"
 )
 
+type errorMessage struct {
+	Message string
+	Err     error
+}
+
 func homePageHandler(w http.ResponseWriter, r *http.Request) {
 	formPage.Execute(w, nil)
 }
@@ -15,21 +20,21 @@ func homePageHandler(w http.ResponseWriter, r *http.Request) {
 func generatePageHandler(w http.ResponseWriter, r *http.Request) {
 	settings, err := parseForm(r)
 	if err != nil {
-		handleError(w, http.StatusInternalServerError, err, "Failed to parse form parameters")
+		handleError(w, http.StatusInternalServerError, errorMessage{Message: "Failed to parse form parameters.", Err: err})
 		return
 	}
 	pass, err := generator.GeneratePassword(settings)
 	if err != nil {
-		handleError(w, http.StatusInternalServerError, err, "Failed to generate your password")
+		handleError(w, http.StatusInternalServerError, errorMessage{Message: "Failed to parse form parameters.", Err: err})
 		return
 	}
 
 	resultPage.Execute(w, string(pass))
 }
 
-func handleError(w http.ResponseWriter, status int, err error, msg string) {
+func handleError(w http.ResponseWriter, status int, err errorMessage) {
 	w.WriteHeader(status)
-	errorPage.Execute(w, msg)
+	errorPage.Execute(w, err)
 }
 
 func aboutPageHandler(w http.ResponseWriter, r *http.Request) {
@@ -42,7 +47,7 @@ func parseForm(r *http.Request) (settings generator.Settings, err error) {
 	masterPass := r.PostFormValue("password")
 	confirmPass := r.PostFormValue("confirm-password")
 	if masterPass != confirmPass {
-		return settings, errors.New("Passwords differ")
+		return settings, errors.New("Passwords differ!")
 	}
 	settings.MasterPhrase = masterPass
 

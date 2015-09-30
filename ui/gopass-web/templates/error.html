@@ -1,4 +1,5 @@
 {{ define "content" }}
 <img src="static/images/guiltypuppy.jpg"/>
-<p>Oops... An unexpected error occurred: {{ . }}</p>
+<p>Oops... An error occurred! Details below: </p>
+<i>{{ .Message }} {{.Err}}</i>
 {{end}}
