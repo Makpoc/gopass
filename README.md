@@ -5,6 +5,10 @@ What it is
 ===========
 This tool generates per domain passwords based on a master secret and some custom properties, controlled by command line arguments. This way users can have different passwords for each site without relying on a online service or password manager (which can be out of sync) or any other tool. All they need is to have the tool locally (or be able to download and build it) and remember their master secret.
 
+Installation
+============
+Execute ```go get github.com/makpoc/gopass/ui/gopass-cmd``` for the command line interface or ```go get github.com/makpoc/gopass/ui/gopass-web``` for the WebUI.
+
 Usage
 =====
     Usage of gopass:
