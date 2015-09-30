@@ -14,13 +14,12 @@ import (
 )
 
 const (
-	goHomeEnvVar = "GOPASS_HOME"
+	goHomeEnvVar          = "GOPASS_HOME"
+	defaultMasterFileName = "master"
+	logFileName           = "domains.log"
 )
 
 var (
-	defaultMasterFileName = "master"
-	logFileName           = "domains.log"
-
 	configFolder     string
 	masterPhrase     string
 	masterPhraseFile string
@@ -83,24 +82,28 @@ func parseMasterPhraseFromFile(file string) (string, error) {
 	return strings.Trim(string(fileContent), "\r\n"), nil
 }
 
-// parseMasterhPhrase reads the master phrase from command line argument or file.
+// parseMasterhPhrase reads the master phrase from the provided or the default file.
 func parseMasterPhrase() error {
-	if masterPhrase != "" {
-		// master phrase provided on cmd
-		return nil
-	}
-
 	var err error
 
 	if masterPhraseFile != "" {
 		// master phrase provided as file
-		if masterPhrase, err = parseMasterPhraseFromFile(masterPhraseFile); err != nil {
+		masterPhrase, err = parseMasterPhraseFromFile(masterPhraseFile)
+		if err != nil {
 			return fmt.Errorf("Failed to retrieve the master from file! Error was: %s", err)
 		}
+
+		// successfully loaded the master phrase from the provided file
+		return nil
+	}
+
+	// We will be searching for the default file. Try to initialize the config folder
+	if err := initConfigFolder(); err != nil {
+		printAndExit(fmt.Sprintf("Failed to initialize default settings. Error was %s", err.Error), false)
 	}
 
 	// try to load from the default file
-	masterPhrase, err = parseMasterPhraseFromFile(path.Join(configFolder, "master"))
+	masterPhrase, err = parseMasterPhraseFromFile(path.Join(configFolder, defaultMasterFileName))
 	if err != nil {
 		return fmt.Errorf("Failed to retrieve master from default file. Error was: %s", err)
 	}
@@ -120,13 +123,6 @@ func parseArgs() {
 	flag.BoolVar(&addInfoToLog, "log-info", false, "Whether to log the parameters that were used for generation to a file. Note that the password itself will NOT be stored!")
 
 	flag.Parse()
-
-	err := parseMasterPhrase()
-	if err != nil {
-		printAndExit(err.Error(), true)
-	}
-
-	validateParams()
 }
 
 // printAndExit is a convenience method for printing messages to command line and exiting with error code
@@ -157,11 +153,17 @@ func validateParams() {
 }
 
 func main() {
-	if err := initConfigFolder(); err != nil {
-		printAndExit(fmt.Sprintf("Failed to initialize default settings. Error was %s", err.Error), false)
+	parseArgs()
+
+	if masterPhrase == "" {
+		err := parseMasterPhrase()
+		if err != nil {
+			printAndExit(err.Error(), false)
+		}
 	}
 
-	parseArgs()
+	validateParams()
+
 	settings := generator.Settings{MasterPhrase: masterPhrase, Domain: domain, AdditionalInfo: additionalInfo, PasswordLength: passLength, AddSpecialCharacters: addSpecialChars}
 	pass, err := generator.GeneratePassword(settings)
 	if err != nil {
