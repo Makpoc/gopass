@@ -1,6 +1,7 @@
 {{ define "content" }}
-<h1>Generate per-domain password</h1>
+<h1>Generate your password</h1>
 <p class="lead">
+<p><h4>Required Fields</h4></p>
 <form id="inputForm" class="form-horizontal" action="/generate_pass" method="post" accept-charset="utf-8">
     <div class="form-group">
         <label class="col-sm-2 label label-default control-label" for="mpassword">Master Password</label>
@@ -23,7 +24,7 @@
         </div>
     </div>
 
-    <p><h3>Optional Fields</h3></p>
+    <p><h4>Optional Fields</h4></p>
 
     <div class="form-group">
         <label class="col-sm-2 label label-default control-label" for="additional-info">Additional Info</label>
