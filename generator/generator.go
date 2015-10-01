@@ -67,7 +67,7 @@ func GeneratePassword(settings Settings) ([]byte, error) {
 	fullEncryptHash := base64.StdEncoding.EncodeToString(encrypted[:])
 
 	if len(fullEncryptHash) < settings.PasswordLength {
-		return nil, fmt.Errorf("Cannot generate password with so many symbols. The current limit is [%d]. Please lower the -password-length value.", len(fullEncryptHash))
+		return nil, fmt.Errorf("Cannot generate password with so many symbols. The current limit is [%d].", len(fullEncryptHash))
 	}
 
 	trimmedPass := fullEncryptHash[:settings.PasswordLength]
