@@ -51,7 +51,7 @@ func logInfo() {
 	logFile := path.Join(configFolder, logFileName)
 	file, err := os.OpenFile(logFile, os.O_WRONLY|os.O_APPEND|os.O_CREATE, 0600)
 	if err != nil {
-		fmt.Sprintf("Failed to open log file %s. Error was: %s\n", logFile, err)
+		fmt.Printf("Failed to open log file %s. Error was: %s\n", logFile, err)
 		return
 	}
 	defer file.Close()
@@ -60,7 +60,7 @@ func logInfo() {
 	_, err = file.WriteString(data)
 
 	if err != nil {
-		fmt.Sprintf("Failed to write to log file %s. Error was: %s\n", logFile, err)
+		fmt.Printf("Failed to write to log file %s. Error was: %s\n", logFile, err)
 		return
 	}
 
@@ -99,7 +99,7 @@ func parseMasterPhrase() error {
 
 	// We will be searching for the default file. Try to initialize the config folder
 	if err := initConfigFolder(); err != nil {
-		printAndExit(fmt.Sprintf("Failed to initialize default settings. Error was %s", err.Error), false)
+		printAndExit(fmt.Sprintf("Failed to initialize default settings. Error was %s", err.Error()), false)
 	}
 
 	// try to load from the default file

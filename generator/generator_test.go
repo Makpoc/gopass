@@ -102,7 +102,7 @@ func TestDefaultSettings(t *testing.T) {
 	}
 
 	if !defaultSettings.AddSpecialCharacters || defaultSettings.PasswordLength != defaultPasswordLength {
-		t.Errorf("Default settings contain unexpected data! AddSpecialCharacters: expected [%s], actual [%s]; PasswordLength: expected [%d], actual [%d]\n", true, defaultSettings.AddSpecialCharacters, defaultPasswordLength, defaultSettings.PasswordLength)
+		t.Errorf("Default settings contain unexpected data! AddSpecialCharacters: expected [%t], actual [%t]; PasswordLength: expected [%d], actual [%d]\n", true, defaultSettings.AddSpecialCharacters, defaultPasswordLength, defaultSettings.PasswordLength)
 	}
 }
 
@@ -118,7 +118,7 @@ func TestNegInvalidSettings(t *testing.T) {
 	for _, inOut := range invalidSettings {
 		_, actualErr := GeneratePassword(inOut.Settings)
 		if actualErr != inOut.expectedErr {
-			t.Errorf("GeneratePassword(%s): expected error %s, actual %s", inOut.Settings, inOut.expectedErr, actualErr)
+			t.Errorf("GeneratePassword(%v): expected error %s, actual %s", inOut.Settings, inOut.expectedErr, actualErr)
 		}
 	}
 
