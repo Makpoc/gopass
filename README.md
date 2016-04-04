@@ -90,4 +90,7 @@ However I took a shortcut by defining a predefined set of special character grou
 ```bash
 go run $GOROOT/src/crypto/tls/generate_cert.go --host="localhost"
 ```
+* javascript to automatically go to home after some period of idle?
+* POST-Redirect-GET to disable browser resent info (http://www.theserverside.com/news/1365146/Redirect-After-Post)
+
 * Mobile UI
