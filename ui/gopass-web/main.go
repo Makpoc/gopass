@@ -7,8 +7,14 @@ import (
 	"os"
 )
 
-const defaultPort = "8000"
-const portEnvKey = "PORT"
+const (
+	defaultPort = "8000"
+	localhost   = "localhost" // public
+	publichost  = ""
+
+	portEnvKey = "GOPASS_PORT"
+	hostEnvKey = "GOPASS_LOCALHOST"
+)
 
 // getPort checks if the PORT env variable is set and uses it instead of the defaultPort
 func getPort() string {
@@ -20,6 +26,14 @@ func getPort() string {
 	return port
 }
 
+func getHost() string {
+	_, isSet := os.LookupEnv(hostEnvKey)
+	if isSet {
+		return localhost
+	}
+	return publichost
+}
+
 func main() {
 	prepareTemplates()
 	fs := http.FileServer(http.Dir("static"))
@@ -29,7 +43,7 @@ func main() {
 	http.HandleFunc("/about", logger(aboutPageHandler))
 	http.HandleFunc("/generate_pass", logger(generatePageHandler))
 
-	port := ":" + getPort()
+	port := getHost() + ":" + getPort()
 	fmt.Println("Listening on " + port + "...")
 	err := http.ListenAndServe(port, nil)
 	if err != nil {
