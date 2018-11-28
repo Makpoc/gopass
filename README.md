@@ -13,7 +13,7 @@ This tool generates per domain passwords based on a master secret and some custo
 
 Execute 
 ```bash
-go get github.com/makpoc/gopass/ui/gopass-cmd
+go get github.com/Makpoc/gopass/ui/gopass-cmd
 ``` 
 
 #### Usage
@@ -64,13 +64,13 @@ If ```$GOPASS_HOME``` is not set the config folder is ```$HOME/.gopass```.
 #### Installation
 
 ```bash
-go get github.com/makpoc/gopass/ui/gopass-web
+go get github.com/Makpoc/gopass/ui/gopass-web
 ```
 
 #### Usage
 
 ```bash
-cd $GOPATH/github.com/makpoc/gopass/ui/gopass-web
+cd $GOPATH/github.com/Makpoc/gopass/ui/gopass-web
 # either install & run:
 go install
 gopass-web | tee -a access.log

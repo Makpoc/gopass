@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/makpoc/gopass/generator"
+	"github.com/Makpoc/gopass/generator"
 )
 
 type errorMessage struct {

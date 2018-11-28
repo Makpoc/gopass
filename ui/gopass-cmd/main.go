@@ -10,7 +10,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/makpoc/gopass/generator"
+	"github.com/Makpoc/gopass/generator"
 )
 
 const (
