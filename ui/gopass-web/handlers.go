@@ -54,14 +54,8 @@ func parseForm(r *http.Request) (settings generator.Settings, err error) {
 		settings.PasswordLength = passwordLength
 	}
 
-	sChars := r.PostFormValue("special-characters")
-	if sChars != "" {
-		var specialCharacters bool
-		if specialCharacters, err = strconv.ParseBool(sChars); err != nil {
-			return
-		}
-		settings.AddSpecialCharacters = specialCharacters
-	}
+	sChars := r.PostFormValue("special-chars")
+	settings.AddSpecialCharacters = sChars == "on"
 
 	return
 }
