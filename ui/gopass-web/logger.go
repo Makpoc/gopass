@@ -6,7 +6,8 @@ import (
 	"time"
 )
 
-// loggingResponseWriter embeds the default repsponseWriter and provides a status field to get the status of a request after the response is received
+// loggingResponseWriter embeds the default responseWriter and provides a status field to get the status of a request
+// after the response is received
 type loggingResponseWriter struct {
 	http.ResponseWriter
 	status int

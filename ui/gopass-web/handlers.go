@@ -1,7 +1,7 @@
 package main
 
 import (
-	"errors"
+	"log"
 	"net/http"
 	"strconv"
 
@@ -13,8 +13,8 @@ type errorMessage struct {
 	Err     error
 }
 
-func homePageHandler(w http.ResponseWriter, r *http.Request) {
-	formPage.Execute(w, nil)
+func homePageHandler(w http.ResponseWriter, _ *http.Request) {
+	mustExecuteTemplate(w, func() error { return formPage.Execute(w, nil) })
 }
 
 func generatePageHandler(w http.ResponseWriter, r *http.Request) {
@@ -29,26 +29,17 @@ func generatePageHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	resultPage.Execute(w, string(pass))
-}
-
-func handleError(w http.ResponseWriter, status int, err errorMessage) {
-	w.WriteHeader(status)
-	errorPage.Execute(w, err)
+	mustExecuteTemplate(w, func() error { return resultPage.Execute(w, string(pass)) })
 }
 
 func aboutPageHandler(w http.ResponseWriter, r *http.Request) {
-	aboutPage.Execute(w, nil)
+	mustExecuteTemplate(w, func() error { return aboutPage.Execute(w, nil) })
 }
 
 func parseForm(r *http.Request) (settings generator.Settings, err error) {
 	settings = generator.DefaultSettings()
 
 	masterPass := r.PostFormValue("password")
-	confirmPass := r.PostFormValue("confirm-password")
-	if masterPass != confirmPass {
-		return settings, errors.New("Passwords differ!")
-	}
 	settings.MasterPhrase = masterPass
 
 	settings.Domain = r.PostFormValue("domain")
@@ -73,4 +64,19 @@ func parseForm(r *http.Request) (settings generator.Settings, err error) {
 	}
 
 	return
+}
+
+func handleError(w http.ResponseWriter, status int, err errorMessage) {
+	w.WriteHeader(status)
+	templateErr := errorPage.Execute(w, err)
+	if templateErr != nil {
+		log.Printf("Failed to execute error template: %v", templateErr)
+	}
+}
+
+func mustExecuteTemplate(w http.ResponseWriter, execTemplateFunc func() error) {
+	var err = execTemplateFunc()
+	if err != nil {
+		handleError(w, http.StatusInternalServerError, errorMessage{Message: "Failed to instantiate template", Err: err})
+	}
 }
