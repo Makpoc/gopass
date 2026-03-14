@@ -3,7 +3,6 @@ package main
 import (
 	"flag"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"os/user"
 	"path"
@@ -74,7 +73,7 @@ func parseMasterPhraseFromFile(file string) (string, error) {
 		return "", err
 	}
 
-	fileContent, err := ioutil.ReadFile(file)
+	fileContent, err := os.ReadFile(file)
 	if err != nil {
 		return "", err
 	}

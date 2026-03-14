@@ -1,1 +1,22 @@
+# IDE
 .idea
+.vscode/
+*.swp
+*.swo
+*~
+
+# Build artifacts
+gopass-cmd
+gopass-web
+ui/gopass-cmd/gopass-cmd
+ui/gopass-web/gopass-web
+
+# User data (security risk if committed)
+master
+domains.log
+.gopass/
+
+# Go
+*.test
+*.out
+coverage.txt

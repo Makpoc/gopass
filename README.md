@@ -1,7 +1,12 @@
-[![Build Status](https://travis-ci.org/Makpoc/gopass.svg?branch=master)](https://travis-ci.org/Makpoc/gopass) [![code-coverage](http://gocover.io/_badge/github.com/Makpoc/gopass/generator)](http://gocover.io/github.com/Makpoc/gopass/generator) [![go-doc](https://godoc.org/github.com/Makpoc/gopass/generator?status.svg)](https://godoc.org/github.com/Makpoc/gopass/generator)
+[![code-coverage](http://gocover.io/_badge/github.com/Makpoc/gopass/generator)](http://gocover.io/github.com/Makpoc/gopass/generator) [![go-doc](https://godoc.org/github.com/Makpoc/gopass/generator?status.svg)](https://godoc.org/github.com/Makpoc/gopass/generator)
 # gopass
 
 Inspired by [supergenpass-lib](https://github.com/chriszarate/supergenpass-lib) and [vpass](https://github.com/vladstudio/vpass2) this is an attempt to make a password generator based on master password and domain.
+
+## Requirements
+
+- Go 1.21 or later
+- Go modules support (enabled by default in Go 1.16+)
 
 # What is it?
 
@@ -11,10 +16,17 @@ This tool generates per domain passwords based on a master secret and some custo
 ## Command line interface
 #### Installation
 
-Execute 
 ```bash
-go get github.com/Makpoc/gopass/ui/gopass-cmd
-``` 
+go install github.com/Makpoc/gopass/ui/gopass-cmd@latest
+```
+
+Or build from source:
+
+```bash
+git clone https://github.com/Makpoc/gopass.git
+cd gopass
+go build ./ui/gopass-cmd
+```
 
 #### Usage
 
@@ -64,33 +76,46 @@ If ```$GOPASS_HOME``` is not set the config folder is ```$HOME/.gopass```.
 #### Installation
 
 ```bash
-go get github.com/Makpoc/gopass/ui/gopass-web
+go install github.com/Makpoc/gopass/ui/gopass-web@latest
+```
+
+Or build from source:
+```bash
+git clone https://github.com/Makpoc/gopass.git
+cd gopass/ui/gopass-web
+go build
 ```
 
 #### Usage
 
 ```bash
-cd $GOPATH/github.com/Makpoc/gopass/ui/gopass-web
-# either install & run:
-go install
+# Run the web server
 gopass-web | tee -a access.log
-# or run directly like this:
-# go run *.go | tee -a access.log
+
+# Or specify a custom port
+GOPASS_PORT=9000 gopass-web
+
+# To run on localhost only (recommended for security)
+GOPASS_LOCALHOST=1 gopass-web
+```
+
+#### Docker
+
+```bash
+docker build -t gopass .
+docker run -p 8080:8080 gopass
 ```
 
 # Problems
 
-I have not seen any functional problems so far, but please send feedback/issues if you find any :)
+I have not seen any functional problems so far, but please send feedback/issues if you find any
 However I took a shortcut by defining a predefined set of special character groups to make sure that the password contains such symbols. I intent to improve this at some point but for now I don't have a clear idea how to make it "random enough".
 
 
 # TODOs
 
-* Configure the server to run over SSL - who would want to send their password over plain HTTP. :)
-```bash
-go run $GOROOT/src/crypto/tls/generate_cert.go --host="localhost"
-```
-* javascript to automatically go to home after some period of idle?
-* POST-Redirect-GET to disable browser resent info (http://www.theserverside.com/news/1365146/Redirect-After-Post)
-
-* Mobile UI
+* Configure the web server to run over HTTPS with TLS certificates
+* JavaScript to automatically clear form/redirect after period of inactivity
+* POST-Redirect-GET pattern to prevent form resubmission
+* Mobile-optimized UI
+* Optional: Implement client-side password generation (to avoid transmitting master password)

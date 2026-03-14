@@ -1,9 +1,11 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 	"strconv"
+	"strings"
 
 	"github.com/Makpoc/gopass/generator"
 )
@@ -25,7 +27,7 @@ func generatePageHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	pass, err := generator.GeneratePassword(settings)
 	if err != nil {
-		handleError(w, http.StatusInternalServerError, errorMessage{Message: "Failed to parse form parameters.", Err: err})
+		handleError(w, http.StatusInternalServerError, errorMessage{Message: "Failed to generate password.", Err: err})
 		return
 	}
 
@@ -39,13 +41,14 @@ func aboutPageHandler(w http.ResponseWriter, r *http.Request) {
 func parseForm(r *http.Request) (settings generator.Settings, err error) {
 	settings = generator.DefaultSettings()
 
-	masterPass := r.PostFormValue("password")
+	// Trim spaces from all text fields
+	masterPass := strings.TrimSpace(r.PostFormValue("password"))
 	settings.MasterPhrase = masterPass
 
-	settings.Domain = r.PostFormValue("domain")
-	settings.AdditionalInfo = r.PostFormValue("additional-info")
+	settings.Domain = strings.TrimSpace(r.PostFormValue("domain"))
+	settings.AdditionalInfo = strings.TrimSpace(r.PostFormValue("additional-info"))
 
-	pLength := r.PostFormValue("password-length")
+	pLength := strings.TrimSpace(r.PostFormValue("password-length"))
 	if pLength != "" {
 		var passwordLength int
 		if passwordLength, err = strconv.Atoi(pLength); err != nil {
@@ -56,6 +59,29 @@ func parseForm(r *http.Request) (settings generator.Settings, err error) {
 
 	sChars := r.PostFormValue("special-chars")
 	settings.AddSpecialCharacters = sChars == "on"
+
+	// Validate required fields
+	if settings.MasterPhrase == "" {
+		err = fmt.Errorf("master password is required")
+		return
+	}
+
+	if settings.Domain == "" {
+		err = fmt.Errorf("domain is required")
+		return
+	}
+
+	// Validate password length bounds
+	if settings.PasswordLength < 1 {
+		err = fmt.Errorf("password length must be a positive number")
+		return
+	}
+
+	// Maximum length based on base64(sha256) output
+	if settings.PasswordLength > 43 {
+		err = fmt.Errorf("password length too long (maximum is 43)")
+		return
+	}
 
 	return
 }
